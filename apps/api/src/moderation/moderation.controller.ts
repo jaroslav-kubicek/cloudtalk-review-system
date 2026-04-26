@@ -1,8 +1,10 @@
 import { Controller, HttpCode, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { AdminTokenGuard } from '../auth/admin-token.guard';
 import { ModerationService } from './moderation.service';
 
 @UseGuards(AdminTokenGuard)
+@ApiBearerAuth('admin')
 @Controller('admin/reviews')
 export class ModerationController {
   constructor(private readonly moderation: ModerationService) {}

@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/jwt.strategy';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -24,6 +25,7 @@ export class ReviewsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('customer')
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateReviewDto): Promise<ReviewDto> {
     return this.reviews.create(user.id, dto);
   }
