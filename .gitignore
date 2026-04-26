@@ -17,4 +17,8 @@ pnpm-debug.log*
 .vscode/
 
 .context/
-.claude/
+
+# local AI tooling overrides (personal, not committed)
+.claude/*
+!.claude/settings.json
+CLAUDE.local.md
