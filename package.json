@@ -10,10 +10,8 @@
   "scripts": {
     "lint": "oxlint .",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
     "dev:api": "pnpm --filter @reviews/api start:dev",
-    "dev:web": "pnpm --filter @reviews/web dev",
-    "openapi": "echo 'wired in feature/api-client branch'"
+    "dev:web": "pnpm --filter @reviews/web dev"
   },
   "devDependencies": {
     "oxlint": "^1.0.0",

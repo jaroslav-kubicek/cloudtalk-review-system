@@ -7,7 +7,6 @@
     "start:dev": "nest start --watch",
     "build": "nest build",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },
@@ -25,12 +24,8 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
-    "@nestjs/testing": "^11.0.0",
-    "@types/jest": "^29.5.13",
     "@types/node": "^22.0.0",
     "drizzle-kit": "^0.28.0",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.2.5",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"
   }
