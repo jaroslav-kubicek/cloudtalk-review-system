@@ -10,6 +10,8 @@
   "scripts": {
     "lint": "oxlint .",
     "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "build": "pnpm -r build",
     "dev:api": "pnpm --filter @reviews/api start:dev",
     "dev:web": "pnpm --filter @reviews/web dev"
   },
