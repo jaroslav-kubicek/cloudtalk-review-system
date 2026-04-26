@@ -1,15 +1,19 @@
-import { createBrowserRouter } from 'react-router';
-import { Button } from '@/components/ui/button';
+import { createBrowserRouter, redirect } from 'react-router';
+import { RootLayout, rootLoader } from '@/routes/root';
+import { loginAction } from '@/routes/login';
+import { logoutAction } from '@/routes/logout';
+import { ProductsList } from '@/routes/products';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background text-foreground">
-        <h1 className="text-3xl font-semibold tracking-tight">CT Reviews</h1>
-        <p className="text-muted-foreground">scaffold</p>
-        <Button>placeholder</Button>
-      </div>
-    ),
+    Component: RootLayout,
+    loader: rootLoader,
+    children: [
+      { index: true, loader: () => redirect('/products') },
+      { path: 'login', action: loginAction },
+      { path: 'logout', action: logoutAction },
+      { path: 'products', Component: ProductsList },
+    ],
   },
 ]);
