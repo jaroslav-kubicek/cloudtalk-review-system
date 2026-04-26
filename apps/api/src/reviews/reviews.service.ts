@@ -38,7 +38,7 @@ export class ReviewsService {
     if (!product) throw new NotFoundException('Product not found');
 
     try {
-      const [row] = await this.db
+      const inserted = await this.db
         .insert(reviews)
         .values({
           productId: dto.productId,
@@ -48,7 +48,7 @@ export class ReviewsService {
           body: dto.body,
         })
         .returning();
-      return toDto(row);
+      return toDto(inserted[0]!);
     } catch (err) {
       if (isPgError(err) && err.code === PG_UNIQUE_VIOLATION) {
         throw new ConflictException('You have already reviewed this product');
