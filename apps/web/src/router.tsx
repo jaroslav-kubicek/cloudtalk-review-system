@@ -3,7 +3,11 @@ import { RootLayout, rootLoader } from '@/routes/root';
 import { loginAction } from '@/routes/login';
 import { logoutAction } from '@/routes/logout';
 import { ProductsList, productsLoader } from '@/routes/products';
-import { ProductDetail, productDetailLoader } from '@/routes/product-detail';
+import {
+  ProductDetail,
+  productDetailAction,
+  productDetailLoader,
+} from '@/routes/product-detail';
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +23,7 @@ export const router = createBrowserRouter([
         path: 'products/:id',
         Component: ProductDetail,
         loader: productDetailLoader,
+        action: productDetailAction,
       },
     ],
   },

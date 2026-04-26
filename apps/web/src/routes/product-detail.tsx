@@ -1,10 +1,50 @@
-import { Link, useLoaderData, type LoaderFunctionArgs } from 'react-router';
+import { useState } from 'react';
+import {
+  Link,
+  useLoaderData,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from 'react-router';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { Stars } from '@/components/Stars';
 import { ReviewCard } from '@/components/ReviewCard';
 import { RatingHistogram } from '@/components/RatingHistogram';
+import { WriteReviewDialog } from '@/components/WriteReviewDialog';
 import { Button } from '@/components/ui/button';
+
+export type ProductDetailActionData = { ok: true } | { ok: false; error: string };
+
+export async function productDetailAction({
+  request,
+  params,
+}: ActionFunctionArgs): Promise<ProductDetailActionData> {
+  const id = params.id;
+  if (!id) return { ok: false, error: 'Missing product id.' };
+
+  const formData = await request.formData();
+  const rating = Number(formData.get('rating'));
+  const title = String(formData.get('title') ?? '').trim();
+  const body = String(formData.get('body') ?? '').trim();
+
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return { ok: false, error: 'Please pick a rating between 1 and 5 stars.' };
+  }
+  if (!title) return { ok: false, error: 'Title is required.' };
+  if (!body) return { ok: false, error: 'Body is required.' };
+
+  const { error, response } = await api.POST('/reviews', {
+    body: { productId: id, rating, title, body },
+  });
+
+  if (response.status === 409) {
+    return { ok: false, error: "You've already submitted a review for this product." };
+  }
+  if (error) {
+    return { ok: false, error: 'Could not submit your review. Please try again.' };
+  }
+  return { ok: true };
+}
 
 export async function productDetailLoader({ params }: LoaderFunctionArgs) {
   const id = params.id;
@@ -44,10 +84,12 @@ export async function productDetailLoader({ params }: LoaderFunctionArgs) {
 
 export function ProductDetail() {
   const { authed, product, stats, reviews, ownReview } = useLoaderData<typeof productDetailLoader>();
+  const [writeOpen, setWriteOpen] = useState(false);
 
   const publicFeed = ownReview
     ? reviews.filter((r) => r.id !== ownReview.id)
     : reviews;
+  const canWrite = authed && !ownReview;
 
   return (
     <div className="space-y-8">
@@ -75,11 +117,15 @@ export function ProductDetail() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium">Reviews</h2>
-          {!authed && (
+          {!authed ? (
             <Button asChild variant="outline" size="sm">
               <Link to="?login=1">Log in to write a review</Link>
             </Button>
-          )}
+          ) : canWrite ? (
+            <Button size="sm" onClick={() => setWriteOpen(true)}>
+              Write a review
+            </Button>
+          ) : null}
         </div>
 
         {ownReview && (
@@ -101,6 +147,10 @@ export function ProductDetail() {
           </div>
         )}
       </section>
+
+      {canWrite && (
+        <WriteReviewDialog open={writeOpen} onOpenChange={setWriteOpen} />
+      )}
     </div>
   );
 }
