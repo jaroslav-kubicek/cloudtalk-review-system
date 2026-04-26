@@ -27,6 +27,20 @@ pnpm dev:api
 
 Seeded customer logins (all use password `password123`): `alice@example.com`, `bob@example.com`, `carol@example.com`.
 
+## API at a glance
+
+| Method | Path                                       | Auth         | Notes                                  |
+| ------ | ------------------------------------------ | ------------ | -------------------------------------- |
+| POST   | `/auth/login`                              | —            | Returns customer JWT (24h)             |
+| GET    | `/products`                                | public       | List with avg rating + review count    |
+| GET    | `/products/:id`                            | public       | Detail                                 |
+| GET    | `/products/:id/stats`                      | public       | Avg + count + per-star distribution    |
+| GET    | `/products/:id/reviews`                    | public       | Approved reviews, newest first         |
+| GET    | `/products/:id/reviews?author=me`          | customer JWT | Caller's reviews on this product, any status |
+| POST   | `/reviews`                                 | customer JWT | Creates review with `status='pending'` |
+| POST   | `/admin/reviews/:id/approve`               | ADMIN_TOKEN  | Triggers stats recompute               |
+| POST   | `/admin/reviews/:id/reject`                | ADMIN_TOKEN  | Conditionally triggers stats recompute |
+
 The API serves an OpenAPI 3 spec at [`/openapi.json`](http://localhost:3000/openapi.json) and an interactive Swagger UI at [`/docs`](http://localhost:3000/docs).
 
 ## Run the web app
@@ -39,13 +53,18 @@ pnpm dev:web
 
 Open [`http://localhost:5173`](http://localhost:5173). Browsing the catalog and product pages does not require auth. Clicking **Log in** in the header (or **Log in to write a review** on a product page) opens the login dialog — use one of the seeded customer accounts above. A submitted review is `pending` until an admin moderates it; in the meantime the author sees it on the product page in a separate "Your review" slot, with a status badge.
 
-To approve a pending review:
+To approve or reject a pending review:
 
 ```sh
 # Set ADMIN_TOKEN to whatever apps/api/.env defines
 curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
   http://localhost:3000/admin/reviews/<review-id>/approve
+
+curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
+  http://localhost:3000/admin/reviews/<review-id>/reject
 ```
+
+Reject of a previously-approved review triggers a stats recompute; reject of a pending one doesn't. Both happen atomically with the status change.
 
 ## Tech decisions
 
@@ -54,7 +73,10 @@ curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
 - **pnpm workspaces, three packages.** Small enough that Nx/Turbo would be overhead.
 - **React Router v7 in data mode.** Loaders/actions handle reads and mutations; no client-state library. Post-action loader revalidation keeps the header and product detail in sync with the auth state and pending-review slot.
 - **Tailwind v4 + shadcn/ui.** shadcn vendors component source under `apps/web/src/components/ui/` instead of installing a UI library, so the workspace stays at three packages.
-- **JWT in `localStorage`.** *The issue:* anything in `localStorage` is readable by any script on the origin, so a single XSS — stored, reflected, or via a compromised npm dep — exfiltrates the token and gives the attacker the user's full session for the token's lifetime. *The real-app approach for a first-party SPA + API like this one* (per the IETF BCP *OAuth 2.0 for Browser-Based Applications*, which puts this architecture out of OAuth scope) *is server-side sessions:* the API issues an opaque session ID in an `httpOnly + Secure + SameSite=Lax` cookie and looks it up against a `sessions` table on each request. Revocation is a `DELETE`; there's no JWT, no refresh-token rotation, no race conditions across tabs. The OAuth-flavored alternative (short JWT in memory + refresh-token cookie + rotation) makes sense when the API has multiple client types or stateless verification at the edge — neither applies here. *What ships:* localStorage, with the XSS tradeoff documented; React's default escaping plus a small dep surface bound the blast radius. The honest hardening order is (1) a strict CSP header, (2) the session-cookie migration — in that order.
+
+### Auth & token storage
+
+The web app stores the customer JWT in `localStorage`. *The issue:* anything in `localStorage` is readable by any script on the origin, so a single XSS — stored, reflected, or via a compromised npm dep — exfiltrates the token and gives the attacker the user's full session for the token's lifetime. *The real-app approach for a first-party SPA + API like this one* (per the IETF BCP *OAuth 2.0 for Browser-Based Applications*, which puts this architecture out of OAuth scope) *is server-side sessions:* the API issues an opaque session ID in an `httpOnly + Secure + SameSite=Lax` cookie and looks it up against a `sessions` table on each request. Revocation is a `DELETE`; there's no JWT, no refresh-token rotation, no race conditions across tabs. The OAuth-flavored alternative (short JWT in memory + refresh-token cookie + rotation) makes sense when the API has multiple client types or stateless verification at the edge — neither applies here. *What ships:* localStorage, with the XSS tradeoff documented; React's default escaping plus a small dep surface bound the blast radius. The honest hardening order is (1) a strict CSP header, (2) the session-cookie migration — in that order.
 
 ## Typed API client
 
