@@ -29,11 +29,32 @@ Seeded customer logins (all use password `password123`): `alice@example.com`, `b
 
 The API serves an OpenAPI 3 spec at [`/openapi.json`](http://localhost:3000/openapi.json) and an interactive Swagger UI at [`/docs`](http://localhost:3000/docs).
 
+## Run the web app
+
+The web is a Vite + React 19 SPA at `apps/web`, served on port 5173. It calls the API at `http://localhost:3000` by default (override with `VITE_API_BASE_URL` in `apps/web/.env`).
+
+```sh
+pnpm dev:web
+```
+
+Open [`http://localhost:5173`](http://localhost:5173). Browsing the catalog and product pages does not require auth. Clicking **Log in** in the header (or **Log in to write a review** on a product page) opens the login dialog — use one of the seeded customer accounts above. A submitted review is `pending` until an admin moderates it; in the meantime the author sees it on the product page in a separate "Your review" slot, with a status badge.
+
+To approve a pending review:
+
+```sh
+# Set ADMIN_TOKEN to whatever apps/api/.env defines
+curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
+  http://localhost:3000/admin/reviews/<review-id>/approve
+```
+
 ## Tech decisions
 
 - **NestJS 11 on Fastify.** Picked Nest for the opinionated module/controller/service split.
 - **Drizzle ORM + Postgres.** The product-rating aggregate is going to be one denormalized table recomputed inside the same transaction as every approve/reject. Drizzle gives me typed SQL without forcing me through an abstraction that hides the transaction boundary.
 - **pnpm workspaces, three packages.** Small enough that Nx/Turbo would be overhead.
+- **React Router v7 in data mode.** Loaders/actions handle reads and mutations; no client-state library. Post-action loader revalidation keeps the header and product detail in sync with the auth state and pending-review slot.
+- **Tailwind v4 + shadcn/ui.** shadcn vendors component source under `apps/web/src/components/ui/` instead of installing a UI library, so the workspace stays at three packages.
+- **JWT in `localStorage`.** The API issues the token in the response body, so an SPA's options are `localStorage` or `sessionStorage` — the cookie path would have meant changing the API. The XSS tradeoff is real; an httpOnly cookie issued by the API would be the production answer.
 
 ## Typed API client
 
