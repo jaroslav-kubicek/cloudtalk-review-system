@@ -26,4 +26,5 @@ jobs:
           DATABASE_URL: postgres://ci@127.0.0.1:5432/ci
         run: |
           pnpm --filter @reviews/api-client codegen
-          git diff --exit-code packages/api-client/openapi.json packages/api-client/src/generated
+          git diff --exit-code -- packages/api-client/openapi.json packages/api-client/src/generated
+          test -z "$(git status --porcelain -- packages/api-client/openapi.json packages/api-client/src/generated)"

@@ -142,6 +142,11 @@
             }
           }
         },
+        "security": [
+          {
+            "customer": []
+          }
+        ],
         "tags": [
           "Reviews"
         ]
@@ -206,6 +211,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
         "tags": [
           "Moderation"
         ]
@@ -229,6 +239,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
         "tags": [
           "Moderation"
         ]

@@ -9,7 +9,9 @@ import { buildOpenApiDocument } from './openapi/build-document';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
+  );
   app.enableCors({ origin: 'http://localhost:5173' });
   SwaggerModule.setup('docs', app, () => buildOpenApiDocument(app), {
     jsonDocumentUrl: 'openapi.json',
