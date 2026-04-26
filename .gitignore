@@ -18,6 +18,9 @@ pnpm-debug.log*
 
 .context/
 
+# Source frames for docs/flow.gif — only the assembled GIF is committed
+docs/flow/frames/
+
 # local AI tooling overrides (personal, not committed)
 .claude/*
 !.claude/settings.json
