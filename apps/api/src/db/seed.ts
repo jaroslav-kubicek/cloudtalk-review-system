@@ -2,7 +2,7 @@ import 'dotenv/config';
 import bcrypt from 'bcrypt';
 import { sql } from 'drizzle-orm';
 import { createDbClient } from './client';
-import { productRatingStats, products, reviews, users } from './schema';
+import { products, reviews, users } from './schema';
 
 const SEED_PRODUCTS = [
   {
