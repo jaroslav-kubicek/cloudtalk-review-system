@@ -27,7 +27,7 @@ pnpm dev:api
 
 Seeded customer logins (all use password `password123`): `alice@example.com`, `bob@example.com`, `carol@example.com`.
 
-The API serves an OpenAPI 3 spec at [`/openapi.json`](http://localhost:3000/openapi.json) and an interactive Swagger UI at [`/docs`](http://localhost:3000/docs). The web app will land in a later PR; admin moderation is exercised via curl in PR #5.
+The API serves an OpenAPI 3 spec at [`/openapi.json`](http://localhost:3000/openapi.json) and an interactive Swagger UI at [`/docs`](http://localhost:3000/docs).
 
 ## Tech decisions
 
