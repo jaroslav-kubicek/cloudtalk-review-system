@@ -1,3 +1,8 @@
+import { ApiProperty } from '@nestjs/swagger';
+
+export const REVIEW_STATUSES = ['pending', 'approved', 'rejected'] as const;
+export type ReviewStatus = (typeof REVIEW_STATUSES)[number];
+
 export class ReviewDto {
   id!: string;
   productId!: string;
@@ -6,7 +11,10 @@ export class ReviewDto {
   title!: string;
   body!: string;
   verifiedPurchase!: boolean;
-  status!: 'pending' | 'approved' | 'rejected';
+
+  @ApiProperty({ enum: REVIEW_STATUSES, enumName: 'ReviewStatus' })
+  status!: ReviewStatus;
+
   createdAt!: string;
   updatedAt!: string;
 }
