@@ -9,11 +9,12 @@ interface StarsProps {
 }
 
 export function Stars({ value, count, size = 'sm', className }: StarsProps) {
-  const filled = Math.round(value);
+  const clamped = Math.min(5, Math.max(0, value));
+  const filled = Math.round(clamped);
   const sizeClass = size === 'md' ? 'h-5 w-5' : 'h-4 w-4';
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <div className="flex items-center" aria-label={`${value.toFixed(1)} out of 5 stars`}>
+      <div className="flex items-center" aria-label={`${clamped.toFixed(1)} out of 5 stars`}>
         {Array.from({ length: 5 }, (_, i) => (
           <Star
             key={i}
@@ -28,7 +29,7 @@ export function Stars({ value, count, size = 'sm', className }: StarsProps) {
         ))}
       </div>
       <span className="text-sm text-muted-foreground">
-        {value.toFixed(1)}
+        {clamped.toFixed(1)}
         {count !== undefined && ` (${count})`}
       </span>
     </div>
