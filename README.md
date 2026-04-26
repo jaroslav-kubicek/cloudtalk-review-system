@@ -29,7 +29,13 @@ Seeded customer logins (all use password `password123`): `alice@example.com`, `b
 
 The API serves an OpenAPI 3 spec at [`/openapi.json`](http://localhost:3000/openapi.json) and an interactive Swagger UI at [`/docs`](http://localhost:3000/docs). The web app will land in a later PR; admin moderation is exercised via curl in PR #5.
 
-## Typed API client
+## Tech decisions
+
+- **NestJS 11 on Fastify.** Picked Nest for the opinionated module/controller/service split.
+- **Drizzle ORM + Postgres.** The product-rating aggregate is going to be one denormalized table recomputed inside the same transaction as every approve/reject. Drizzle gives me typed SQL without forcing me through an abstraction that hides the transaction boundary.
+- **pnpm workspaces, three packages.** Small enough that Nx/Turbo would be overhead.
+
+### Typed API client
 
 `packages/api-client` is a thin workspace package the web app consumes for typed access to the API. Types are generated from the API's OpenAPI spec; the runtime is a ~30-line wrapper around [`openapi-fetch`](https://openapi-ts.dev/openapi-fetch).
 
@@ -51,12 +57,6 @@ pnpm --filter @reviews/api-client codegen
 ```
 
 CI re-runs codegen on every PR and fails when the committed artifacts drift from the API source.
-
-## Tech decisions
-
-- **NestJS 11 on Fastify.** Picked Nest for the opinionated module/controller/service split.
-- **Drizzle ORM + Postgres.** The product-rating aggregate is going to be one denormalized table recomputed inside the same transaction as every approve/reject. Drizzle gives me typed SQL without forcing me through an abstraction that hides the transaction boundary.
-- **pnpm workspaces, three packages.** Small enough that Nx/Turbo would be overhead.
 
 ## Schema
 
