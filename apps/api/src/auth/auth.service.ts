@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { DRIZZLE } from '../db/db.module';
 import type { DrizzleDb } from '../db/client';
 import { users } from '../db/schema';
+import { LoginResponseDto } from './dto/login-response.dto';
 import type { JwtPayload } from './jwt.strategy';
 
 @Injectable()
@@ -14,7 +15,7 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  async login(email: string, password: string): Promise<{ accessToken: string }> {
+  async login(email: string, password: string): Promise<LoginResponseDto> {
     const [user] = await this.db.select().from(users).where(eq(users.email, email)).limit(1);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 

@@ -27,7 +27,30 @@ pnpm dev:api
 
 Seeded customer logins (all use password `password123`): `alice@example.com`, `bob@example.com`, `carol@example.com`.
 
-The web app and admin curl examples will land in later PRs alongside the endpoints they exercise.
+The API serves an OpenAPI 3 spec at [`/openapi.json`](http://localhost:3000/openapi.json) and an interactive Swagger UI at [`/docs`](http://localhost:3000/docs). The web app will land in a later PR; admin moderation is exercised via curl in PR #5.
+
+## Typed API client
+
+`packages/api-client` is a thin workspace package the web app consumes for typed access to the API. Types are generated from the API's OpenAPI spec; the runtime is a ~30-line wrapper around [`openapi-fetch`](https://openapi-ts.dev/openapi-fetch).
+
+```ts
+import { createCustomerClient } from '@reviews/api-client';
+
+const client = createCustomerClient({
+  baseUrl: 'http://localhost:3000',
+  getToken: () => localStorage.getItem('jwt'),
+});
+
+const { data, error } = await client.GET('/products');
+```
+
+The generated `openapi.json` and `src/generated/openapi.d.ts` are committed. After changing any API DTO or controller, regenerate them:
+
+```sh
+pnpm --filter @reviews/api-client codegen
+```
+
+CI re-runs codegen on every PR and fails when the committed artifacts drift from the API source.
 
 ## Tech decisions
 

@@ -21,3 +21,9 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - name: Verify api-client codegen is up to date
+        env:
+          DATABASE_URL: postgres://ci@127.0.0.1:5432/ci
+        run: |
+          pnpm --filter @reviews/api-client codegen
+          git diff --exit-code packages/api-client/openapi.json packages/api-client/src/generated

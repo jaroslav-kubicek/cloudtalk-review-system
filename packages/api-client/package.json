@@ -6,9 +6,16 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "codegen:spec": "pnpm --filter @reviews/api emit:openapi",
+    "codegen:types": "openapi-typescript ./openapi.json -o ./src/generated/openapi.d.ts",
+    "codegen": "pnpm run codegen:spec && pnpm run codegen:types"
   },
   "devDependencies": {
+    "openapi-typescript": "^7.13.0",
     "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.17.0"
   }
 }
