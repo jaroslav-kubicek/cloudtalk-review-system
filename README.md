@@ -35,7 +35,7 @@ The API serves an OpenAPI 3 spec at [`/openapi.json`](http://localhost:3000/open
 - **Drizzle ORM + Postgres.** The product-rating aggregate is going to be one denormalized table recomputed inside the same transaction as every approve/reject. Drizzle gives me typed SQL without forcing me through an abstraction that hides the transaction boundary.
 - **pnpm workspaces, three packages.** Small enough that Nx/Turbo would be overhead.
 
-### Typed API client
+## Typed API client
 
 `packages/api-client` is a thin workspace package the web app consumes for typed access to the API. Types are generated from the API's OpenAPI spec; the runtime is a ~30-line wrapper around [`openapi-fetch`](https://openapi-ts.dev/openapi-fetch).
 
