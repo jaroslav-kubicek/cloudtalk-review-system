@@ -30,6 +30,7 @@ export class ModerationService {
         .select({ status: reviews.status, productId: reviews.productId })
         .from(reviews)
         .where(eq(reviews.id, reviewId))
+        .for('update')
         .limit(1);
       if (!current) throw new NotFoundException('Review not found');
 
